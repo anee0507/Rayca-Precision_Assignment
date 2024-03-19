@@ -1,0 +1,155 @@
+---
+title: "Variant Parsing"
+author: "Sanzida Akhter Anee"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+
+
+
+
+# Installing packages and loading libraries
+```{r}
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
+BiocManager::install("VariantAnnotation")    #depends on updated version 
+library(VariantAnnotation)
+install.packages("pegas")
+library(pegas)
+```
+
+#Further packages can be installed using the `BiocManager::install` function and specifying a character vector of which packages to install.
+#More information on installing and updating Bioconductor packages can be found at:
+
+http://bioconductor.org/install/
+
+
+
+
+# Set the path to your VCF file
+```{r}
+vcf_file <- ("/Users/sanzidaakhteranee/Desktop/Data/normal_sample.deepvariant .vcf.gz")
+
+```
+
+
+
+
+#Read VCF file
+```{r}
+library(vcfR)
+vcf <- readVcf(vcf_file)
+VCFHeader(vcf_file)
+VCFlabels (vcf_file)
+
+
+```
+
+
+
+
+
+# Running VCFloci from pegas package, This converts our vcf file into a data frame
+## Assigning data frame to a variable to enable viewing
+```{r}
+vcf_data_frame <- VCFloci (vcf_file, what = "all", chunk.size = 1e9, quiet =FALSE)
+
+view (vcf_data_frame)
+
+
+```
+
+
+
+
+
+#Read vcf data frame
+```{r}
+head(vcf_data_frame)  # View the first few rows
+tail(vcf_data_frame)  # View the last few rows
+
+summary(vcf_data_frame)  # Summary statistics
+str(vcf_data_frame)      # Structure of the data frame
+
+
+
+```
+
+
+
+
+# Find out how many SNPS are in the 1st chromosome
+```{r}
+x <- sum (vcf_data_frame $CHROM == "chr1")
+x
+
+
+```
+
+
+
+
+#Convert the data frame to contain x number of rows and 2 columns
+```{r}
+new_vcf_data_frame <- vcf_data_frame[1:"54314", ]  # 54314 nps for chr1
+View(new_vcf_data_frame)
+
+```
+
+
+
+#Set p to be the number of rows in the new data frame and create a new variable with the new sample name
+```{r}
+p <- 54314
+#Replace every row with a 0
+SNP_normal_sample.deepvariant <- rep(0, p)
+
+
+```
+
+
+
+
+#Add a 1 to every row with a position number
+```{r}
+SNP_normal_sample.deepvariant[new_vcf_data_frame$POS] <- 1
+
+```
+
+
+
+
+#View the data
+```{r}
+SNP_normal_sample.deepvariant
+
+```
+
+
+
+
+#Save the data frame onto desktop
+```{r}
+saveRDS(SNP_normal_sample.deepvariant="/Users/sanzidaakhteranee/Documents/Vcf Result")
+
+```
+
+
+
+
+#Reload the data frame back into R to make sure it worked and saved right
+```{r}
+a <- readRDS("/Users/sanzidaakhteranee/Documents/Vcf Result")
+
+```
+
+
+
+
+#Final sanity check 
+```{r}
+a
+```
+
